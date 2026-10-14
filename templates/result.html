@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Examination Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <p class="eyebrow">EXAMINATION COMPLETE</p>
+      <h1>Your result</h1>
+      <p>Well done for completing the examination, {{ name }}.</p>
+    </header>
+
+    <section class="result-card">
+      <p class="result-status {{ 'pass' if status == 'PASS' else 'fail' }}">{{ status }}</p>
+      <p class="big-score">{{ score }} <span>/ {{ total }}</span></p>
+      <p class="percentage">{{ percentage }}%</p>
+      <p class="muted">Your result has been saved to <code>web_results.csv</code>.</p>
+    </section>
+
+    <section class="exam-card">
+      <h2>Answer review</h2>
+      {% for question in questions %}
+        {% set i = loop.index0 %}
+        <article class="review-item">
+          <h3>{{ loop.index }}. {{ question }}</h3>
+          {% if answers[i] == correct_answers[i] %}
+            <p class="correct">Correct — {{ options[i][correct_answers[i]] }}</p>
+          {% else %}
+            <p class="incorrect">Your answer:
+              {% if answers[i] >= 0 and answers[i] < options[i]|length %}
+                {{ options[i][answers[i]] }}
+              {% else %}
+                Not answered
+              {% endif %}
+            </p>
+            <p class="correct">Correct answer: {{ options[i][correct_answers[i]] }}</p>
+          {% endif %}
+        </article>
+      {% endfor %}
+      <a class="button-link" href="{{ url_for('exam') }}">Start a new examination</a>
+    </section>
+    <footer>Learning project · Results are stored locally on the computer running Flask.</footer>
+  </main>
+</body>
+</html>

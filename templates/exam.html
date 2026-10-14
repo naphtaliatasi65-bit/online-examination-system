@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Online Examination System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <p class="eyebrow">ARRAYS PROJECT</p>
+      <h1>Online Examination</h1>
+      <p>Answer every question, then submit to see your result.</p>
+    </header>
+
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <section class="exam-card">
+      <div class="exam-meta">
+        <span>{{ questions|length }} questions</span>
+        <span class="timer" id="timer" aria-live="polite">02:00</span>
+      </div>
+
+      <form id="exam-form" method="post">
+        <label class="name-label" for="student_name">Student name</label>
+        <input id="student_name" name="student_name" type="text" maxlength="100"
+               placeholder="Enter your name" required>
+
+        {% for question in questions %}
+          {% set i = loop.index0 %}
+          <fieldset class="question">
+            <legend>{{ loop.index }}. {{ question }}</legend>
+            {% for option in options[i] %}
+              <label class="option">
+                <input type="radio" name="q{{ i }}" value="{{ loop.index0 }}">
+                <span>{{ option }}</span>
+              </label>
+            {% endfor %}
+          </fieldset>
+        {% endfor %}
+
+        <button type="submit" id="submit-button">Submit examination</button>
+        <p class="hint">The demo timer automatically submits when it reaches zero.</p>
+      </form>
+    </section>
+    <footer>Learning project · Questions and choices are stored in Python lists.</footer>
+  </main>
+  
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const examForm = document.getElementById("exam-form");
+    const timerDisplay = document.getElementById("timer");
+    const submitButton = document.getElementById("submit-button");
+
+    let timeLeft = 120;
+    let submitted = false;
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+
+        timerDisplay.textContent =
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+    }
+
+    function submitExam() {
+        if (submitted) return;
+        submitted = true;
+
+        clearInterval(countdown);
+
+        // Allow automatic submission even if answers or name are missing.
+        examForm.querySelectorAll("[required]").forEach(function (field) {
+            field.removeAttribute("required");
+        });
+
+        // Use the form's native submission method.
+        HTMLFormElement.prototype.submit.call(examForm);
+    }
+
+    updateTimerDisplay();
+
+    const countdown = setInterval(function () {
+        timeLeft--;
+
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            updateTimerDisplay();
+            submitExam();
+            return;
+        }
+
+        updateTimerDisplay();
+    }, 1000);
+
+    examForm.addEventListener("submit", function () {
+        submitted = true;
+        clearInterval(countdown);
+    });
+});
+</script>
+
+</body>
+</html>
